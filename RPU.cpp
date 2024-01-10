@@ -1621,11 +1621,15 @@ byte RPU_SetDisplay(int displayNumber, unsigned long value, boolean blankByMagni
   if (displayNumber<0 || displayNumber>4) return 0;
 
   byte blank = 0x00;
+#if (RPU_MPU_ARCHITECTURE>=13)    
   byte commaBit = 0x01 << (2*displayNumber);
+#endif
 
   for (int count=0; count<RPU_OS_NUM_DIGITS; count++) {
     blank = blank * 2;
     if (value!=0 || count<minDigits) blank |= 1;
+
+#if (RPU_MPU_ARCHITECTURE>=13)    
     if (showCommasByMagnitude) {
       if (value) {
         if (count==3) DisplayCommas |= commaBit;
@@ -1635,6 +1639,9 @@ byte RPU_SetDisplay(int displayNumber, unsigned long value, boolean blankByMagni
         if (count==6) DisplayCommas &= ~(commaBit*2);
       }
     }
+#else
+    (void)showCommasByMagnitude;
+#endif    
     DisplayDigits[displayNumber][(RPU_OS_NUM_DIGITS-1)-count] = value%10;
     value /= 10;
   }
@@ -2043,7 +2050,9 @@ void RPU_ClearVariables() {
     }
     DisplayDigitEnable[displayCount] = 0x00;
   }
+#if (RPU_MPU_ARCHITECTURE>=13)  
   DisplayCommas = 0x00;
+#endif
 
   // Turn off all lamp states
   for (int lampBankCounter=0; lampBankCounter<RPU_NUM_LAMP_BANKS; lampBankCounter++) {

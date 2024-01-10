@@ -877,19 +877,50 @@ void MoveBallFromOutholeToRamp(boolean sawSwitch = false) {
 
 void setup() {
 
-  // Set up the chips and interrupts
-  RPU_InitializeMPU(/*SW_CREDIT_RESET*/);
-//  if (RPU_DiagnosticModeRequested()) {
-//    MachineState = MACHINE_STATE_DIAGNOSTICS;
-//  }
   if (DEBUG_MESSAGES) {
-    Serial.begin(57600);
-    Serial.write("Done with MPU Initialization\n");
-
-//    char buf[64]; 
-//    sprintf(buf, "top Machine State = %d\n", (int)MachineState);
-//    Serial.write(buf);
+    // If debug is on, set up the Serial port for communication
+    Serial.begin(115200);
+    Serial.write("Starting\n");
   }
+
+  // Set up the Audio handler in order to play boot messages
+  CurrentTime = millis();
+  if (DEBUG_MESSAGES) Serial.write("Staring Audio\n");
+  Audio.InitDevices(AUDIO_PLAY_TYPE_WAV_TRIGGER | AUDIO_PLAY_TYPE_ORIGINAL_SOUNDS);
+  Audio.StopAllAudio();
+
+  // Set up the chips and interrupts
+  unsigned long initResult = 0;
+  if (DEBUG_MESSAGES) Serial.write("Initializing MPU\n");
+  initResult = RPU_InitializeMPU(RPU_CMD_BOOT_ORIGINAL_IF_CREDIT_RESET | RPU_CMD_INIT_AND_RETURN_EVEN_IF_ORIGINAL_CHOSEN | RPU_CMD_PERFORM_MPU_TEST, SW_CREDIT_RESET);
+
+  if (DEBUG_MESSAGES) {
+    char buf[128];
+    sprintf(buf, "Return from init = 0x%04lX\n", initResult);
+    Serial.write(buf);
+    if (initResult&RPU_RET_6800_DETECTED) Serial.write("Detected 6800 clock\n");
+    else if (initResult&RPU_RET_6802_OR_8_DETECTED) Serial.write("Detected 6802/8 clock\n");
+    Serial.write("Back from init\n");
+  }
+
+//  if (initResult & RPU_RET_SELECTOR_SWITCH_ON) QueueDIAGNotification(SOUND_EFFECT_DIAG_SELECTOR_SWITCH_ON);
+//  else QueueDIAGNotification(SOUND_EFFECT_DIAG_SELECTOR_SWITCH_OFF);
+//  if (initResult & RPU_RET_CREDIT_RESET_BUTTON_HIT) QueueDIAGNotification(SOUND_EFFECT_DIAG_CREDIT_RESET_BUTTON);
+
+  if (initResult & RPU_RET_DIAGNOSTIC_REQUESTED) {
+//    QueueDIAGNotification(SOUND_EFFECT_DIAG_STARTING_DIAGNOSTICS);
+    // Run diagnostics here:    
+  }
+
+  if (initResult & RPU_RET_ORIGINAL_CODE_REQUESTED) {
+    delay(100);
+//    QueueDIAGNotification(SOUND_EFFECT_DIAG_STARTING_ORIGINAL_CODE);
+    while (Audio.Update(millis()));
+    // Arduino should hang if original code is running
+    while (1);
+  }
+//  QueueDIAGNotification(SOUND_EFFECT_DIAG_STARTING_NEW_CODE);
+
   RPU_DisableSolenoidStack();
   RPU_SetDisableFlippers(true);
 

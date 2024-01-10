@@ -41,7 +41,7 @@
 //  RPU_MPU_ARCHITECTURE 12 = Sys 6
 //  RPU_MPU_ARCHITECTURE 13 = Sys 7
 //  RPU_MPU_ARCHITECTURE 15 = Sys 11
-#define RPU_MPU_ARCHITECTURE  13
+#define RPU_MPU_ARCHITECTURE  12
 
 // Some boards will assume a 6800 is the processor (RPU_OS_HARDWARE_REV 1 through 4)
 // and some boards will try to detect the processor (RPU_OS_HARDWARE_REV 102)
@@ -63,8 +63,8 @@
 #define RPU_OS_USE_7_DIGIT_DISPLAYS
 //#define RPU_USE_EXTENDED_SWITCHES_ON_PB4
 //#define RPU_USE_EXTENDED_SWITCHES_ON_PB7
-//#define RPU_OS_USE_WTYPE_1_SOUND
-#define RPU_OS_USE_WTYPE_2_SOUND
+#define RPU_OS_USE_WTYPE_1_SOUND
+//#define RPU_OS_USE_WTYPE_2_SOUND
 //#define RPU_OS_USE_W11_SOUND
 
 
