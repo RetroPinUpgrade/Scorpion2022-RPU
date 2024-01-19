@@ -24,7 +24,7 @@
 
 #define SCORPION_MAJOR_VERSION  2023
 #define SCORPION_MINOR_VERSION  1
-#define DEBUG_MESSAGES  1
+#define DEBUG_MESSAGES  0
 
 /*
  * Bugs & features
@@ -689,8 +689,8 @@ unsigned long RightJackpotTime = 0;
 
 // Combo tracking variables
 
-DropTargetBank DropTargets6(6, 2, DROP_TARGET_TYPE_WILLIAMS_1, 50);
-DropTargetBank DropTargets5(5, 2, DROP_TARGET_TYPE_WILLIAMS_1, 50);
+DropTargetBank DropTargets6(6, 2, DROP_TARGET_TYPE_WLLMS_1, 50);
+DropTargetBank DropTargets5(5, 2, DROP_TARGET_TYPE_WLLMS_1, 50);
 
 #define HOLDOVER_BONUS                0x01 // right pop, level 2
 #define HOLDOVER_BONUS_X              0x02 // top pop, level 3
@@ -2529,7 +2529,7 @@ void PlaySoundEffect(unsigned int soundEffectNum) {
   if (MachineState==MACHINE_STATE_INIT_GAMEPLAY) return;
   Audio.PlaySound(soundEffectNum, AUDIO_PLAY_TYPE_WAV_TRIGGER);
 
-#if defined(WILLIAMS_TYPE_1_SOUND)
+#if defined(RPU_OS_USE_WTYPE_1_SOUND)
   // Only use Type 1 sound if we're below option 6
   if (SoundSelector<6) {
     switch (soundEffectNum) {
@@ -2861,7 +2861,7 @@ int RunDiagnosticsMode(int curState, boolean curStateChanged) {
       if (errorSeen) break;
     }
     if (errorSeen) {
-      Serial.write("!!! Error in Volatile RAM\n");
+      Serial.write("!! Error in Volatile RAM\n");
     }
 
     Serial.write("Testing Volatile RAM at IC16 (0x0080 - 0x0100): writing & reading... ");
@@ -2888,7 +2888,7 @@ int RunDiagnosticsMode(int curState, boolean curStateChanged) {
       if (errorSeen) break;
     }
     if (errorSeen) {
-      Serial.write("!!! Error in Volatile RAM\n");
+      Serial.write("!! Error in Volatile RAM\n");
     }
     
     // Check the CMOS RAM to see if it's operating correctly
@@ -2917,7 +2917,7 @@ int RunDiagnosticsMode(int curState, boolean curStateChanged) {
     }
     
     if (errorSeen) {
-      Serial.write("!!! Error in CMOS RAM\n");
+      Serial.write("!! Error in CMOS RAM\n");
     }
     
     
@@ -6790,16 +6790,8 @@ void loop() {
     MachineStateChanged = false; 
   }
 
-
-  if (1) {
-    RPU_ApplyFlashToLamps(CurrentTime);
-    RPU_UpdateTimedSolenoidStack(CurrentTime);
-    RPU_UpdateTimedSoundStack(CurrentTime);
-  } else {
-    RPU_Update(CurrentTime);
-  }
-
-  //InitAudio();
+  RPU_Update(CurrentTime);
+  Audio.Update(CurrentTime);
   
   if (LastLEDUpdateTime == 0 || (CurrentTime - LastLEDUpdateTime) > 250) {
     LastLEDUpdateTime = CurrentTime;

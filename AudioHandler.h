@@ -1,16 +1,8 @@
 #ifndef AUDIO_HANDLER_H
 
-// Need to handle prioritized, queued sound effects for native sound cards
-
-
 #include <HardwareSerial.h>
-#if __has_include("BSOS_Config.h")
-#include "BSOS_Config.h"
-#include "BallySternOS.h"
-#elif __has_include("WOS_Config.h")
-#include "WOS_Config.h"
-#include "WOS.h"
-#endif
+#include "RPU_Config.h"
+#include "RPU.h"
 
 
 #define AUDIO_PLAY_TYPE_CHIMES            1
@@ -102,10 +94,13 @@ struct SoundEffectEntry {
 #define EOM   0x55
 
 
-#if defined(USE_WAV_TRIGGER) || defined(USE_WAV_TRIGGER_1p3)
+#if defined(RPU_OS_USE_WAV_TRIGGER) || defined(RPU_OS_USE_WAV_TRIGGER_1p3)
 
-#define WTSerial Serial1
-
+#if (RPU_OS_HARDWARE_REV<=3)
+#define WTSerial Serial
+#else
+#define WTSerial Serial1 
+#endif
 
 class wavTrigger
 {
@@ -216,16 +211,16 @@ class AudioHandler
 
     SoundEntry soundQueue[SOUND_QUEUE_SIZE];
 
-#if defined(WILLIAMS_TYPE_1_SOUND) || defined(WILLIAMS_TYPE_2_SOUND)
+#if defined(RPU_OS_USE_WTYPE_1_SOUND) || defined(RPU_OS_USE_WTYPE_2_SOUND)
     SoundEffectEntry CurrentSoundPlaying;
     SoundEffectEntry SoundEffectQueue[SOUND_EFFECT_QUEUE_SIZE];
 #endif
 
-#ifdef BALLY_STERN_OS_USE_SB300
+#ifdef RPU_OS_USE_SB300
     SoundCardCommandEntry soundCardQueue[SOUND_CARD_QUEUE_SIZE];
 #endif
 
-#if defined(USE_WAV_TRIGGER) || defined(USE_WAV_TRIGGER_1p3)
+#if defined(RPU_OS_USE_WAV_TRIGGER) || defined(RPU_OS_USE_WAV_TRIGGER_1p3)
     wavTrigger wTrig;             // Our WAV Trigger object 
 #endif
 
